@@ -36,6 +36,7 @@
     "test": "mocha tests/*.js"
   },
   "repository": {
+    "start": "slack_bot.js",
     "type": "git",
     "url": "git+https://github.com/maison-notman-house/notman-housekeeping-bot.git"
   },
