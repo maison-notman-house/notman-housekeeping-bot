@@ -235,6 +235,50 @@ controller.hears(['shutdown'], 'direct_message,direct_mention,mention', function
     });
 });
 
+controller.hears(['kitchen', 'cafe'],
+    'direct_message,direct_mention,mention', function(bot, message) {
+
+	var net = require('net');
+	var client = new net.Socket();
+	client.connect(1700, process.env.KITCHEN_SENSOR, function() {
+		console.log('Connected');
+		//key = '#Eg'; //'01234567'.decode('hex')
+		client.write(process.env.KITCHEN_SENSOR_KEY);
+	});
+
+	client.on('data', function(data) {
+		console.log('Received: ' + data);
+		bot.reply(message,
+            'Kitchen sensor readings:' + data + '.');
+			
+		    bot.startConversation(message, function(err, convo) {
+
+				convo.ask('Do you want to clean the kitchen?', [
+					{
+						pattern: bot.utterances.yes,
+						callback: function(response, convo) {
+							convo.say('@keepers please clean the kitchen!');
+							convo.next();
+						}
+					},
+				{
+					pattern: bot.utterances.no,
+					default: true,
+					callback: function(response, convo) {
+						convo.say('*Ok!*');
+						convo.next();
+					}
+				}
+				]);
+			});	
+			
+		client.destroy(); // kill client after server's response
+	});
+
+	client.on('close', function() {
+		console.log('Connection closed');
+	});  
+});
 
 controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
     'direct_message,direct_mention,mention', function(bot, message) {
