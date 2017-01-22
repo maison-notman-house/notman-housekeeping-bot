@@ -256,7 +256,25 @@ controller.hears(['kitchen', 'cafe'],
 					{
 						pattern: bot.utterances.yes,
 						callback: function(response, convo) {
-							convo.say('/msg @keepers please clean the kitchen!');
+
+
+							var msg_bot = controller.spawn({
+							  incoming_webhook: {
+								url: "https://hooks.slack.com/services/"+process.env.KEEPERS_KEY
+							  }
+							})
+						
+							msg_bot.sendWebhook({
+							  text: '@keepers please clean the kitchen!',
+							  channel: '#housekeeping',
+							},function(err,res) {
+							  if (err) {
+								console.log('Got error for '+"https://hooks.slack.com/services/"+process.env.KEEPERS_KEY);
+								console.log(err);
+							  }
+							});
+
+							convo.say('/msg ');
 							convo.next();
 						}
 					},
