@@ -65,7 +65,7 @@ This bot demonstrates many of the core features of Botkit:
 
 
 if (!process.env.SLACK_TOKEN) {
-    console.log('Error: Specify token in environment');
+    console.log('Error: Specify SLACK_TOKEN in environment');
     process.exit(1);
 }
 
@@ -347,7 +347,7 @@ function formatUptime(uptime) {
 
     uptime = uptime + ' ' + unit;
     return uptime;
-}
+};
 
 controller.hears(['toilet', 'washroom', 'dirty', 'clean', 'missing', 'broken', 'bad', 'soap'],
     'direct_message,direct_mention,mention', function(bot, message) {
@@ -399,4 +399,10 @@ controller.hears(['toilet', 'washroom', 'dirty', 'clean', 'missing', 'broken', '
 			]);
 		});	
 	});
+});
+
+var schedule = require('node-schedule');
+// runs every 15 minutes
+var j = schedule.scheduleJob(process.env.CRON_DETECT, function(){
+  console.log('Looking at sensors...00000');
 });
