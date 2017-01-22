@@ -271,11 +271,13 @@ controller.hears(['kitchen', 'cafe'],
 							  if (err) {
 								console.log('Got error for '+"https://hooks.slack.com/services/"+process.env.KEEPERS_KEY);
 								console.log(err);
+								convo.say('The request to @keepers has not been delivered due an error');
 							  }
+							  else {
+								convo.say('The request has been sent to @keepers');
+							  }
+							  convo.next();
 							});
-
-							convo.say('/msg ');
-							convo.next();
 						}
 					},
 				{
