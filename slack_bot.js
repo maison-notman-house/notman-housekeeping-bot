@@ -241,9 +241,8 @@ controller.hears(['kitchen', 'cafe'],
 	var net = require('net');
 	var client = new net.Socket();
 	client.connect(1700, process.env.KITCHEN_SENSOR, function() {
-		console.log('Connected');
-		//key = '#Eg'; //'01234567'.decode('hex')
-		client.write(process.env.KITCHEN_SENSOR_KEY);
+		console.log('Kitchen sensor connected');
+		client.write(process.env.KITCHEN_SENSOR_KEY); //key = '#Eg'; //'01234567'.decode('hex')
 	});
 
 	client.on('data', function(data) {
@@ -257,7 +256,7 @@ controller.hears(['kitchen', 'cafe'],
 					{
 						pattern: bot.utterances.yes,
 						callback: function(response, convo) {
-							convo.say('@keepers please clean the kitchen!');
+							convo.say('/msg @keepers please clean the kitchen!');
 							convo.next();
 						}
 					},
