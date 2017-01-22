@@ -261,7 +261,7 @@ controller.hears(['kitchen', 'cafe'],
         client.on('data', function (data) {
             console.log('Received: ' + data);
             bot.reply(message,
-                'Kitchen sensor readings:' + data + '.');
+                'Kitchen sensor readings:' + data + '. Please consider to clean it.');
 
             bot.startConversation(message, function (err, convo) {
 
