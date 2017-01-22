@@ -96,6 +96,26 @@ app.get('/', function(request, response) {
   response.render('pages/index');
 });
 
+// http://localhost:5000/api/v1/issue/<key>/toilet
+app.get('/api/v1/issue/'+process.env.ISSUE_KEY+'/:location', function(req, res) {
+    // the user was found and is available in req.user
+    res.send('Thank you for reporting an issue at ' + req.params.location + '!');
+	
+	var request = require('request');
+
+	request.post(
+		"https://hooks.slack.com/services/"+process.env.MANAGERS_KEY,
+		{ json: { text: 'An iisue has been reported in '+ req.params.location } },
+		function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				console.log(body)
+			}
+		}
+	);
+});
+
+
+
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
@@ -328,3 +348,55 @@ function formatUptime(uptime) {
     uptime = uptime + ' ' + unit;
     return uptime;
 }
+
+controller.hears(['toilet', 'washroom', 'dirty', 'clean', 'missing', 'broken', 'bad', 'soap'],
+    'direct_message,direct_mention,mention', function(bot, message) {
+
+    controller.storage.users.get(message.user, function(err, user) {
+		name = 'guest';
+        if (user && user.name) {
+			console.log('------------- name is ' + user.name);
+			console.log('------------- user is ' + user);
+			name = user.name;
+        } else {
+			console.log('------------- user is ' + user);
+		}
+		bot.startConversation(message, function(err, convo) {
+			convo.ask('Thank you for reporting. Would you like report it to facility management?', [
+				{
+					pattern: bot.utterances.yes,
+					callback: function(response, convo) {
+						var msg_bot = controller.spawn({
+						  incoming_webhook: {
+							url: "https://hooks.slack.com/services/"+process.env.MANAGERS_KEY
+						  }
+						})
+					
+						msg_bot.sendWebhook({
+						  text: 'New report: '+message.text,
+						  channel: '#house-decisions',
+						},function(err,res) {
+						  if (err) {
+							console.log('Got error for '+"https://hooks.slack.com/services/"+process.env.MANAGERS_KEY);
+							console.log(err);
+							convo.say('The report to managers has not been delivered due an error');
+						  }
+						  else {
+							convo.say('The report has been sent to the facility management team');
+						  }
+						  convo.next();
+						});
+					}
+				},
+			{
+				pattern: bot.utterances.no,
+				default: true,
+				callback: function(response, convo) {
+					convo.say('*Ok!*');
+					convo.next();
+				}
+			}
+			]);
+		});	
+	});
+});
